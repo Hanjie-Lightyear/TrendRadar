@@ -4,6 +4,8 @@ import json
 import os
 import random
 import re
+import sys
+import subprocess
 import time
 import webbrowser
 import smtplib
@@ -14,6 +16,7 @@ from email.utils import formataddr, formatdate, make_msgid
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional, Union
+from platforms import DataFetcherV2
 
 import pytz
 import requests
@@ -4918,7 +4921,7 @@ class NewsAnalyzer:
         self.update_info = None
         self.proxy_url = None
         self._setup_proxy()
-        self.data_fetcher = DataFetcher(self.proxy_url)
+        self.data_fetcher = DataFetcherV2(self.proxy_url)
 
         if self.is_github_actions:
             self._check_version_update()
@@ -5380,14 +5383,49 @@ class NewsAnalyzer:
 
         # 打开浏览器（仅在非容器环境）
         if self._should_open_browser() and html_file:
-            if summary_html:
-                summary_url = "file://" + str(Path(summary_html).resolve())
-                print(f"正在打开汇总报告: {summary_url}")
-                webbrowser.open(summary_url)
-            else:
-                file_url = "file://" + str(Path(html_file).resolve())
-                print(f"正在打开HTML报告: {file_url}")
-                webbrowser.open(file_url)
+            try:
+                if summary_html:
+                    summary_path = Path(summary_html).resolve()
+                    # 对路径进行 URL 编码，处理中文字符
+                    from urllib.parse import quote
+                    summary_url = "file://" + quote(str(summary_path), safe="/:")
+                    print(f"正在打开汇总报告: {summary_url}")
+                    webbrowser.open(summary_url)
+                else:
+                    file_path = Path(html_file).resolve()
+                    from urllib.parse import quote
+                    file_url = "file://" + quote(str(file_path), safe="/:")
+                    print(f"正在打开HTML报告: {file_url}")
+                    webbrowser.open(file_url)
+            except Exception as e:
+                # 如果浏览器打开失败，尝试直接使用文件路径
+                try:
+                    if summary_html:
+                        print(f"浏览器打开失败，尝试直接打开文件: {summary_html}")
+                        if sys.platform == "darwin":  # macOS
+                            import subprocess
+                            subprocess.run(["open", str(Path(summary_html).resolve())])
+                        elif sys.platform == "win32":  # Windows
+                            os.startfile(str(Path(summary_html).resolve()))
+                        else:  # Linux
+                            import subprocess
+                            subprocess.run(["xdg-open", str(Path(summary_html).resolve())])
+                    else:
+                        print(f"浏览器打开失败，尝试直接打开文件: {html_file}")
+                        if sys.platform == "darwin":  # macOS
+                            import subprocess
+                            subprocess.run(["open", str(Path(html_file).resolve())])
+                        elif sys.platform == "win32":  # Windows
+                            os.startfile(str(Path(html_file).resolve()))
+                        else:  # Linux
+                            import subprocess
+                            subprocess.run(["xdg-open", str(Path(html_file).resolve())])
+                except Exception as e2:
+                    print(f"⚠️ 无法自动打开浏览器: {e2}")
+                    if summary_html:
+                        print(f"   请手动打开文件: {Path(summary_html).resolve()}")
+                    else:
+                        print(f"   请手动打开文件: {Path(html_file).resolve()}")
         elif self.is_docker_container and html_file:
             if summary_html:
                 print(f"汇总报告已生成（Docker环境）: {summary_html}")
