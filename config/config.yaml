@@ -126,6 +126,8 @@ platforms:
     name: "币安广场"
   - id: "aibase"
     name: "AIBase"
+  - id: "36kr"
+    name: "36氪"
    # === 财经投资类 ===
   - id: "fastbull-express"
     name: "法布财经 快讯"

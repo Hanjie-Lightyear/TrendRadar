@@ -22,6 +22,7 @@ from .wushuo import WushuoPlatform
 from .panews import PanewsPlatform
 from .binance_news import BinanceNewsPlatform
 from .aibase import AIBasePlatform
+from .kr36 import Kr36Platform
 
 __all__ = [
     "NewsNowPlatform",
@@ -41,5 +42,6 @@ __all__ = [
     "PanewsPlatform",
     "BinanceNewsPlatform",
     "AIBasePlatform",
+    "Kr36Platform",
 ]
 
