@@ -169,6 +169,23 @@ class BinanceNewsPlatform(BasePlatform):
                 print(f"[{self.platform_name}] 获取成功，共 {len(items)} 条")
                 return {"items": items}, self.platform_id, self.platform_name
                 
+            except requests.exceptions.ConnectionError as e:
+                retries += 1
+                error_msg = str(e)
+                # 提供更友好的错误提示
+                if "Connection refused" in error_msg or "Failed to establish" in error_msg:
+                    proxy_hint = f"（提示：当前代理设置: {'已启用' if self.proxy_url else '未启用'}）"
+                    error_msg = f"连接被拒绝，无法访问币安服务器{proxy_hint}"
+                
+                if retries <= max_retries:
+                    base_wait = random.uniform(min_retry_wait, max_retry_wait)
+                    additional_wait = (retries - 1) * random.uniform(1, 2)
+                    wait_time = base_wait + additional_wait
+                    print(f"[{self.platform_name}] 请求失败: {error_msg}. {wait_time:.2f}秒后重试...")
+                    time.sleep(wait_time)
+                else:
+                    print(f"[{self.platform_name}] 请求失败: {error_msg}。已重试 {max_retries} 次，跳过此平台")
+                    return None, self.platform_id, self.platform_name
             except Exception as e:
                 retries += 1
                 if retries <= max_retries:

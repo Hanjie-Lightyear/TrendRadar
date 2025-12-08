@@ -20,6 +20,7 @@ from .sources import (
     WushuoPlatform,
     PanewsPlatform,
     BinanceNewsPlatform,
+    AIBasePlatform,
 )
 
 # 平台注册表 - 根据 platform_id 自动识别平台类型
@@ -41,6 +42,7 @@ PLATFORM_REGISTRY = {
     "wushuo": WushuoPlatform,
     "panews": PanewsPlatform,
     "binance-news": BinanceNewsPlatform,
+    "aibase": AIBasePlatform,
 }
 
 

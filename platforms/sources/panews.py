@@ -144,7 +144,7 @@ class PanewsPlatform(BasePlatform):
                     # Panews 快讯 URL 格式：https://www.panewslab.com/flash/{id}
                     item_id = item.get("id", "")
                     if item_id:
-                        url = f"https://www.panewslab.com/flash/{item_id}"
+                        url = f"https://www.panewslab.com/zh/articles/{item_id}"
                     else:
                         url = ""
                     

@@ -131,16 +131,9 @@ class BlockBeatsNews(BasePlatform):
                     # 构建完整 URL
                     url = item.get("url", "")
                     
-                    # 如果 url 为空，使用 article_id 构造 URL
-                    if not url or not str(url).strip():
-                        article_id = item.get("article_id")
-                        if article_id:
+                    article_id = item.get("article_id")
+                    if article_id:
                             url = f"https://www.theblockbeats.info/flash/{article_id}"
-                        else:
-                            url = ""  # 如果 article_id 也不存在，保持为空
-                    # 如果 url 存在但不是完整 URL，处理相对路径
-                    elif url and not url.startswith(("http://", "https://")):
-                        url = f"https://www.theblockbeats.info{url}" if url.startswith("/") else url
                     
                     items.append({
                         "title": str(title).strip(),
