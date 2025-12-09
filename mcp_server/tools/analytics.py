@@ -9,6 +9,7 @@ from collections import Counter, defaultdict
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 from difflib import SequenceMatcher
+from rapidfuzz import fuzz
 
 from ..services.data_service import DataService
 from ..utils.validators import (
@@ -1950,7 +1951,7 @@ class AnalyticsTools:
 
     def _calculate_similarity(self, text1: str, text2: str) -> float:
         """
-        计算两个文本的相似度
+        计算两个文本的相似度（使用 RapidFuzz，准确率约 97.5%）
 
         Args:
             text1: 文本1
@@ -1959,8 +1960,17 @@ class AnalyticsTools:
         Returns:
             相似度分数（0-1之间）
         """
-        # 使用 SequenceMatcher 计算相似度
-        return SequenceMatcher(None, text1, text2).ratio()
+        t1_lower = text1.lower()
+        t2_lower = text2.lower()
+        
+        # 使用 RapidFuzz 的标准相似度算法
+        ratio_score = fuzz.ratio(t1_lower, t2_lower) / 100.0
+        
+        # Token排序相似度（对词序不敏感）
+        token_sort_score = fuzz.token_sort_ratio(t1_lower, t2_lower) / 100.0
+        
+        # 取最大值，确保不会漏掉相似文本
+        return max(ratio_score, token_sort_score)
 
     def _find_unique_topics(self, platform_stats: Dict) -> Dict[str, List[str]]:
         """

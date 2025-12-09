@@ -39,6 +39,7 @@ ai
 
 美联储
 PCE
+BTC
 比特币
 ETH
 以太坊
